@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased dark:bg-ink-950 dark:text-slate-200;
+  }
+  h1, h2, h3, h4 { @apply font-display tracking-tight text-slate-900 dark:text-white; }
+  :focus-visible { @apply outline-none ring-2 ring-safety-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-ink-950; }
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .glass {
+    @apply rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur-xl
+           dark:border-white/10 dark:bg-white/[0.04];
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition;
+  }
+  .btn-primary { @apply btn bg-safety-500 text-white hover:bg-safety-600 shadow-lg shadow-safety-500/20; }
+  .btn-ghost {
+    @apply btn border border-slate-300 text-slate-800 hover:border-slate-500
+           dark:border-white/20 dark:text-white dark:hover:border-white/50;
+  }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.2em] text-safety-600 dark:text-safety-400; }
+  .field {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400
+           focus:border-safety-500 dark:border-white/15 dark:bg-ink-900 dark:text-white;
+  }
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-marquee { animation: none; }
+}
