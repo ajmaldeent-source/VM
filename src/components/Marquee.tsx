@@ -1,10 +1,10 @@
-import { clients } from "@/content/site";
+import { clients } from "@/content";
 
 // Infinite logo marquee. Text placeholders until authorized client logos are supplied.
 export default function Marquee() {
   const row = [...clients, ...clients];
   return (
-    <div className="group relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
+    <div dir="ltr" className="group relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_10%,black_90%,transparent)]">
       <ul className="flex w-max animate-marquee gap-4 group-hover:[animation-play-state:paused]" aria-label="Clients">
         {row.map((c, i) => (
           <li

@@ -20,14 +20,14 @@ function rateLimited(ip: string) {
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (rateLimited(ip)) {
-    return NextResponse.json({ ok: false, error: "Too many requests. Please try again later." }, { status: 429 });
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
 
   let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "invalid_request" }, { status: 400 });
   }
 
   // Honeypot: real users never fill this hidden field. Pretend success for bots.
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
     } catch (err) {
       console.error("Enquiry forwarding failed", err);
-      return NextResponse.json({ ok: false, error: "We couldn't send your enquiry. Please try again." }, { status: 502 });
+      return NextResponse.json({ ok: false, error: "forward_failed" }, { status: 502 });
     }
   } else {
     console.info("[enquiry] received (no ENQUIRY_WEBHOOK_URL set):", enquiry.type, enquiry.email);

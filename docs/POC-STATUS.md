@@ -7,11 +7,11 @@ Status key: ✅ done in prototype · 🟡 partly done / placeholder · ⏳ waiti
 | Area | Status | Notes |
 | --- | --- | --- |
 | Visual design | 🟡 | Header, footer, type scale, colors, spacing and responsive layouts built. The design is an original direction, not a visual copy of the current site. "Compare against agreed reference screenshots" waits on the owner agreeing which screenshots. |
-| Pages and navigation | 🟡 | Home, About, Services (+4 detail pages), Insights, Contact, 404. All menu items route correctly (checked: 200s, unknown service → 404). The final page list must be confirmed in discovery. |
+| Pages and navigation | 🟡 | Home, About, Services (+4 detail pages), Insights, Contact, 404 — in English and Arabic (RTL), with a language switch. All menu items route correctly (checked: 200s, unknown service → 404). The final page list must be confirmed in discovery. |
 | Content and media | ⏳ | All copy, figures, contact details and client names are placeholders in `src/content/site.ts`. No images or logos used. Owner must supply approved assets. |
 | Forms | ✅ | 3-step enquiry form; client + server validation from one shared module; success/error states; honeypot + per-IP rate limit (5 per 10 min). |
 | Business functions | ⏳ | Only the enquiry workflow is built. No other functions confirmed. |
-| Administration | ⛔ | No CMS/admin. Content is a typed local file, ready to map to a CMS if required. |
+| Administration | 🟡 | `/admin` with Google sign-in (allowlist). Read-only dashboard: content overview, EN/AR translation check, configuration status. Editing needs a CMS/database. |
 | Deployment | ⏳ | Production build passes; deployment steps in README. No staging URL yet. |
 
 ## §6 Security, accessibility and quality
@@ -21,7 +21,7 @@ Status key: ✅ done in prototype · 🟡 partly done / placeholder · ⏳ waiti
 | HTTPS in staging/production | ⏳ | Depends on host. HSTS header already set in `next.config.mjs`. |
 | Validate and sanitize form data | ✅ | `src/lib/enquiry.ts`: trims, strips control chars, length limits, field rules. Re-validated on the server. |
 | Secrets outside source code | ✅ | Only `ENQUIRY_WEBHOOK_URL`, read from env; `.env*` git-ignored; `.env.example` documents it. |
-| Least-privilege admin access | ⛔ | No admin functions in the POC. |
+| Least-privilege admin access | ✅ | Verified Google accounts on `ADMIN_EMAILS` only; re-checked per request; 8-hour sessions; admin pages `noindex`. |
 | Optimize images / avoid large assets | ✅ | No raster images; inline SVG only. First-load JS ≈ 145–153 kB per page. |
 | Keyboard, labels, contrast, responsive | 🟡 | Skip link, focus rings, labelled fields with linked errors, `aria-current`, reduced-motion support. A manual contrast and device check is still needed. |
 | Major desktop/mobile browsers | ⏳ | Not yet tested in real browsers; scheduled for Phase 4. |
@@ -54,9 +54,10 @@ Status key: ✅ done in prototype · 🟡 partly done / placeholder · ⏳ waiti
 
 - [ ] Exact pages and features to keep from the current site
 - [ ] Site type: informational (assumed in the prototype), catalogue, or transactional
-- [ ] Languages: is Arabic required? Right-to-left layout? (not built yet)
+- [x] Languages: English + Arabic with right-to-left layout (built; Arabic copy needs native review)
 - [ ] Workflows: enquiry only (built), or also accounts / payments / booking (excluded)
-- [ ] CMS needed? Who edits content and who approves publishing?
+- [ ] CMS needed? Who edits content and who approves publishing? (admin sign-in built; editing not yet)
+- [ ] Google OAuth client and the list of admin email addresses
 - [ ] Hosting preference, staging environment, domain ownership/DNS access
 - [ ] Where enquiries should go: email, CRM, or webhook
 - [ ] Approved logos, fonts, images, page text, brand guidelines

@@ -1,10 +1,10 @@
 // Styled placeholder for the custom dark-mode map. Replace with Mapbox GL once an
 // access token and the confirmed office/workshop coordinates are provided.
-export default function LocationMap() {
+export default function LocationMap({ label, caption }: { label: string; caption: string }) {
   return (
     <figure className="glass overflow-hidden">
       <div className="relative aspect-[4/3] bg-ink-900">
-        <svg viewBox="0 0 400 300" className="absolute inset-0 h-full w-full" role="img" aria-label="Map placeholder showing Kuwait office location">
+        <svg viewBox="0 0 400 300" className="absolute inset-0 h-full w-full" role="img" aria-label={label}>
           <defs>
             <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
               <path d="M20 0H0V20" fill="none" stroke="rgba(255,255,255,0.05)" />
@@ -26,7 +26,7 @@ export default function LocationMap() {
           </g>
         </svg>
       </div>
-      <figcaption className="px-5 py-3 text-xs text-slate-500">Interactive map pending location confirmation.</figcaption>
+      <figcaption className="px-5 py-3 text-xs text-slate-500">{caption}</figcaption>
     </figure>
   );
 }

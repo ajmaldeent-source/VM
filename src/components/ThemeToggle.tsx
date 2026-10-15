@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getDictionary } from "@/content";
+import type { Locale } from "@/i18n/config";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale).ui;
   const [dark, setDark] = useState(true);
 
   useEffect(() => setDark(document.documentElement.classList.contains("dark")), []);
@@ -20,7 +23,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={dark ? t.toLight : t.toDark}
       className="grid h-10 w-10 place-items-center rounded-full text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>

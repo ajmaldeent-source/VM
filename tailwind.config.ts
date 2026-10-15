@@ -11,8 +11,8 @@ const config: Config = {
         volt: { 400: "#4cc3ff", 500: "#1aa7ff" },
       },
       fontFamily: {
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-arabic)", "system-ui", "sans-serif"],
+        sans: ["var(--font-body)", "var(--font-arabic)", "system-ui", "sans-serif"],
       },
       keyframes: {
         marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },

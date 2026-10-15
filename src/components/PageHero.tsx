@@ -7,7 +7,7 @@ export default function PageHero({ eyebrow, title, intro }: { eyebrow: string; t
       <div className="container-x">
         <Reveal>
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold sm:text-5xl lg:text-6xl">{title}</h1>
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold sm:text-5xl lg:text-6xl rtl:leading-tight">{title}</h1>
           {intro && <p className="mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-400">{intro}</p>}
         </Reveal>
       </div>

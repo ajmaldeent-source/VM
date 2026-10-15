@@ -1,6 +1,8 @@
 // Shared enquiry validation used by the contact form (client) and /api/enquiry (server).
+// Errors are returned as codes so each language can show its own message.
+import type { EnquiryErrorCode } from "@/content/types";
 
-export const enquiryTypes = ["Request a quote", "Technical query", "Partnership", "Careers", "Other"] as const;
+export const enquiryTypes = ["quote", "technical", "partnership", "careers", "other"] as const;
 
 export type Enquiry = {
   type: string;
@@ -10,15 +12,16 @@ export type Enquiry = {
   email: string;
   phone: string;
   message: string;
+  locale: string;
 };
 
-export type EnquiryErrors = Partial<Record<keyof Enquiry, string>>;
+export type EnquiryErrors = Partial<Record<keyof Enquiry, EnquiryErrorCode>>;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE = /^[+\d][\d\s()-]{6,19}$/;
 
 const limits: Record<keyof Enquiry, number> = {
-  type: 40, service: 60, name: 100, company: 120, email: 160, phone: 25, message: 3000,
+  type: 40, service: 60, name: 100, company: 120, email: 160, phone: 25, message: 3000, locale: 5,
 };
 
 /** Trims, strips control characters and enforces max lengths. */
@@ -30,7 +33,7 @@ export function sanitize(input: Record<string, unknown>): Enquiry {
       .slice(0, limits[k]);
   return {
     type: clean("type"), service: clean("service"), name: clean("name"), company: clean("company"),
-    email: clean("email"), phone: clean("phone"), message: clean("message"),
+    email: clean("email"), phone: clean("phone"), message: clean("message"), locale: clean("locale"),
   };
 }
 
@@ -39,19 +42,19 @@ export function validate(e: Enquiry, fields: (keyof Enquiry)[] = Object.keys(lim
   for (const f of fields) {
     switch (f) {
       case "type":
-        if (!enquiryTypes.includes(e.type as (typeof enquiryTypes)[number])) errors.type = "Please choose an enquiry type.";
+        if (!enquiryTypes.includes(e.type as (typeof enquiryTypes)[number])) errors.type = "type_required";
         break;
       case "name":
-        if (e.name.length < 2) errors.name = "Please enter your full name.";
+        if (e.name.length < 2) errors.name = "name_required";
         break;
       case "email":
-        if (!EMAIL.test(e.email)) errors.email = "Please enter a valid email address.";
+        if (!EMAIL.test(e.email)) errors.email = "email_invalid";
         break;
       case "phone":
-        if (e.phone && !PHONE.test(e.phone)) errors.phone = "Please enter a valid phone number.";
+        if (e.phone && !PHONE.test(e.phone)) errors.phone = "phone_invalid";
         break;
       case "message":
-        if (e.message.length < 10) errors.message = "Please give us a few details (at least 10 characters).";
+        if (e.message.length < 10) errors.message = "message_short";
         break;
     }
   }

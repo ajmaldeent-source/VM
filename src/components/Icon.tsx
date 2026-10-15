@@ -1,6 +1,6 @@
-import type { Service } from "@/content/site";
+import type { ServiceIcon } from "@/content";
 
-const paths: Record<Service["icon"], React.ReactNode> = {
+const paths: Record<ServiceIcon, React.ReactNode> = {
   gear: (
     <>
       <circle cx="12" cy="12" r="3" />
@@ -28,7 +28,7 @@ const paths: Record<Service["icon"], React.ReactNode> = {
   ),
 };
 
-export default function Icon({ name, className = "h-6 w-6" }: { name: Service["icon"]; className?: string }) {
+export default function Icon({ name, className = "h-6 w-6" }: { name: ServiceIcon; className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {paths[name]}

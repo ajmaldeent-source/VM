@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { company, nav } from "@/content/site";
+import { getDictionary } from "@/content";
+import { href, type Locale } from "@/i18n/config";
 import ThemeToggle from "./ThemeToggle";
 
-export default function Header() {
+export default function Header({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -20,21 +22,35 @@ export default function Header() {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const nav = [
+    { href: href(locale, "/"), label: t.nav.home },
+    { href: href(locale, "/about"), label: t.nav.about },
+    { href: href(locale, "/services"), label: t.nav.services },
+    { href: href(locale, "/insights"), label: t.nav.insights },
+    { href: href(locale, "/contact"), label: t.nav.contact },
+  ];
+  const home = href(locale, "/");
+  const isActive = (h: string) => (h === home ? pathname === home : pathname.startsWith(h));
+
+  // Same page in the other language.
+  const other: Locale = locale === "en" ? "ar" : "en";
+  const switchHref = pathname.replace(/^\/(en|ar)(?=\/|$)/, `/${other}`) || `/${other}`;
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-4">
       <div
-        className={`mx-auto flex h-14 max-w-5xl items-center justify-between rounded-full border pl-5 pr-2 backdrop-blur-xl transition-all duration-300 ${
+        className={`mx-auto flex h-14 max-w-5xl items-center justify-between rounded-full border pe-2 ps-5 backdrop-blur-xl transition-all duration-300 ${
           scrolled || open
             ? "border-slate-200/80 bg-white/80 shadow-lg shadow-slate-900/5 dark:border-white/10 dark:bg-ink-900/75 dark:shadow-black/30"
             : "border-white/10 bg-white/60 dark:bg-white/[0.04]"
         }`}
       >
-        <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-slate-900 dark:text-white">
-          <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full bg-safety-500 text-white">S</span>
-          {company.shortName}
-          <span className="sr-only"> — home</span>
+        <Link href={home} className="flex items-center gap-2 font-display text-lg font-bold text-slate-900 dark:text-white">
+          <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full bg-safety-500 text-white">
+            {t.company.shortName.charAt(0)}
+          </span>
+          {t.company.shortName}
+          <span className="sr-only"> — {t.ui.home}</span>
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
@@ -54,17 +70,25 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <Link href="/contact" className="btn-primary hidden !py-2 sm:inline-flex">
-            Request a quote
+        <div className="flex items-center gap-1">
+          <Link
+            href={switchHref}
+            hrefLang={other}
+            lang={other}
+            className="rounded-full px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/10"
+          >
+            {t.ui.switchLanguage}
+          </Link>
+          <ThemeToggle locale={locale} />
+          <Link href={href(locale, "/contact")} className="btn-primary ms-1 hidden !py-2 sm:inline-flex">
+            {t.ui.requestQuote}
           </Link>
           <button
             type="button"
             className="grid h-10 w-10 place-items-center rounded-full md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t.ui.closeMenu : t.ui.openMenu}
             onClick={() => setOpen((v) => !v)}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>

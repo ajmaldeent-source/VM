@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { company, sectors } from "@/content/site";
+import { getDictionary } from "@/content";
+import { href, type Locale } from "@/i18n/config";
 
 // Lightweight stand-in for the WebGL hero: an SVG valve/pipeline schematic that
 // tilts with the pointer. Swap for a React Three Fiber scene once 3D assets are approved.
-export default function Hero() {
+export default function Hero({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -32,8 +34,8 @@ export default function Hero() {
       className="noise relative isolate overflow-hidden bg-ink-950 pb-24 pt-32 text-white sm:pt-40"
     >
       <div aria-hidden className="absolute inset-0 -z-10">
-        <div className="absolute -left-40 top-0 h-[36rem] w-[36rem] rounded-full bg-safety-500/20 blur-[120px]" />
-        <div className="absolute -right-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-volt-500/20 blur-[120px]" />
+        <div className="absolute -start-40 top-0 h-[36rem] w-[36rem] rounded-full bg-safety-500/20 blur-[120px]" />
+        <div className="absolute -end-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-volt-500/20 blur-[120px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
       </div>
 
@@ -45,20 +47,20 @@ export default function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-slate-300 backdrop-blur"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-safety-500" />
-            Kuwait · {sectors.join(" · ")}
+            {t.ui.hero.location} · {t.sectors.join(" · ")}
           </motion.p>
           <motion.h1
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
+            className="mt-6 text-5xl font-bold leading-[1.05] text-white rtl:leading-[1.3] sm:text-6xl lg:text-7xl"
           >
-            Engineering
+            {t.ui.hero.titleA}
             <br />
-            <span className="bg-gradient-to-r from-safety-400 via-safety-500 to-volt-400 bg-clip-text text-transparent">
-              Excellence
+            <span className="bg-gradient-to-r from-safety-400 via-safety-500 to-volt-400 bg-clip-text pb-2 text-transparent">
+              {t.ui.hero.titleHighlight}
             </span>{" "}
-            Since {company.founded}
+            {t.ui.hero.titleB}
           </motion.h1>
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 24 }}
@@ -66,7 +68,7 @@ export default function Hero() {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="mt-6 max-w-xl text-lg text-slate-300"
           >
-            {company.intro}
+            {t.company.intro}
           </motion.p>
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 24 }}
@@ -74,12 +76,12 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.7 }}
             className="mt-10 flex flex-wrap gap-3"
           >
-            <Link href="/contact" className="btn-primary">
-              Request a quote
-              <span aria-hidden>→</span>
+            <Link href={href(locale, "/contact")} className="btn-primary">
+              {t.ui.requestQuote}
+              <span aria-hidden className="rtl:rotate-180">→</span>
             </Link>
-            <Link href="/services" className="btn border border-white/20 text-white hover:border-white/50">
-              Explore services
+            <Link href={href(locale, "/services")} className="btn border border-white/20 text-white hover:border-white/50">
+              {t.ui.hero.explore}
             </Link>
           </motion.div>
         </div>
@@ -97,7 +99,7 @@ export default function Hero() {
 
 function ValveSchematic() {
   return (
-    <svg viewBox="0 0 400 400" className="absolute inset-0 h-full w-full" aria-hidden>
+    <svg viewBox="0 0 400 400" className="absolute inset-0 h-full w-full" aria-hidden direction="ltr">
       <defs>
         <linearGradient id="pipe" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor="#334155" />

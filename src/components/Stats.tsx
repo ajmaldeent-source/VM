@@ -2,7 +2,7 @@
 
 import { animate, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { stats } from "@/content/site";
+import type { Dictionary } from "@/content";
 
 function Counter({ to, suffix }: { to: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -23,7 +23,7 @@ function Counter({ to, suffix }: { to: number; suffix: string }) {
   );
 }
 
-export default function Stats() {
+export default function Stats({ stats }: { stats: Dictionary["stats"] }) {
   return (
     <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       {stats.map((s) => (

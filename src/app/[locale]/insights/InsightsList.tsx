@@ -3,17 +3,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import InsightCard from "@/components/InsightCard";
-import { insights, type Insight } from "@/content/site";
+import { getDictionary } from "@/content";
+import type { InsightCategory } from "@/content/types";
+import type { Locale } from "@/i18n/config";
 
-const categories = ["All", ...Array.from(new Set(insights.map((p) => p.category)))] as const;
-
-export default function InsightsList() {
-  const [active, setActive] = useState<(typeof categories)[number]>("All");
-  const shown = active === "All" ? insights : insights.filter((p: Insight) => p.category === active);
+export default function InsightsList({ locale }: { locale: Locale }) {
+  const t = getDictionary(locale);
+  const categories: (InsightCategory | "all")[] = ["all", ...Array.from(new Set(t.insights.map((p) => p.category)))];
+  const [active, setActive] = useState<InsightCategory | "all">("all");
+  const shown = active === "all" ? t.insights : t.insights.filter((p) => p.category === active);
 
   return (
     <>
-      <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">
+      <div role="group" aria-label={t.ui.insightsPage.filterLabel} className="flex flex-wrap gap-2">
         {categories.map((c) => (
           <button
             key={c}
@@ -26,7 +28,7 @@ export default function InsightsList() {
                 : "border border-slate-300 text-slate-700 hover:border-slate-500 dark:border-white/15 dark:text-slate-300"
             }`}
           >
-            {c}
+            {t.insightCategories[c]}
           </button>
         ))}
       </div>
@@ -34,7 +36,7 @@ export default function InsightsList() {
         <AnimatePresence mode="popLayout">
           {shown.map((p) => (
             <motion.div key={p.slug} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}>
-              <InsightCard post={p} />
+              <InsightCard post={p} locale={locale} />
             </motion.div>
           ))}
         </AnimatePresence>
