@@ -5,6 +5,7 @@ import SignOutButton from "@/components/SignOutButton";
 
 const sections: { href: string; label: string; permission: Permission }[] = [
   { href: "/admin", label: "Dashboard", permission: "dashboard:view" },
+  { href: "/admin/enquiries", label: "Enquiries", permission: "enquiries:view" },
   { href: "/admin/users", label: "Users & roles", permission: "users:view" },
   { href: "/admin/developer", label: "Developer tools", permission: "devtools:view" },
 ];

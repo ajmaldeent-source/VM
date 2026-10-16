@@ -67,6 +67,8 @@ Defined once in `src/lib/roles.ts`; the "Users & roles" admin page displays the 
 | `content:view` | ✓ | ✓ | — |
 | `users:view` | ✓ | — | — |
 | `devtools:view` | ✓ | ✓ | — |
+| `enquiries:view` | ✓ | — | — |
+| `enquiries:manage` | ✓ | — | — |
 | `account:view` | ✓ | ✓ | ✓ |
 
 To add a permission: add a line to `permissions` in `roles.ts`, then call `requireStaff("your:permission")`

@@ -15,6 +15,9 @@ export const permissions = {
   "content:view": ["admin", "developer"],
   "users:view": ["admin"],
   "devtools:view": ["admin", "developer"],
+  // Enquiries hold customers' personal data, so only admins see or change them.
+  "enquiries:view": ["admin"],
+  "enquiries:manage": ["admin"],
   "account:view": ["admin", "developer", "consumer"],
 } as const satisfies Record<string, readonly Role[]>;
 

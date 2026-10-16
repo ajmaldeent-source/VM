@@ -135,6 +135,11 @@ export type Dictionary = {
       email: string;
       enquiries: string;
       enquiriesEmpty: string;
+      enquiriesUnavailable: string;
+      colDate: string;
+      colType: string;
+      colStatus: string;
+      statuses: { new: string; in_progress: string; closed: string };
       newEnquiry: string;
       signOut: string;
       staffNote: string;

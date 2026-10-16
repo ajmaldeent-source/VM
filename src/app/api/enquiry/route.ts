@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { sanitize, validate } from "@/lib/enquiry";
+import { saveEnquiry } from "@/lib/enquiryStore";
+import { currentUser } from "@/lib/guards";
 
 // POC rate limit: in-memory, per instance. Replace with a shared store (e.g. Redis) in production.
 const hits = new Map<string, { count: number; reset: number }>();
@@ -41,21 +43,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, errors }, { status: 422 });
   }
 
+  // 1. Save first: the database is the record of every enquiry.
+  let id: string;
+  try {
+    const user = await currentUser();
+    id = await saveEnquiry(enquiry, user?.email ?? null);
+  } catch (err) {
+    console.error("[enquiry] could not be saved", err);
+    return NextResponse.json({ ok: false, error: "save_failed" }, { status: 500 });
+  }
+
+  // 2. Optional notification (CRM/email webhook). The enquiry is already stored,
+  //    so a failure here is logged rather than shown to the visitor.
   const webhook = process.env.ENQUIRY_WEBHOOK_URL;
   if (webhook) {
     try {
       const res = await fetch(webhook, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...enquiry, receivedAt: new Date().toISOString() }),
+        body: JSON.stringify({ id, ...enquiry, receivedAt: new Date().toISOString() }),
       });
       if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
     } catch (err) {
-      console.error("Enquiry forwarding failed", err);
-      return NextResponse.json({ ok: false, error: "forward_failed" }, { status: 502 });
+      console.error(`[enquiry] ${id} saved, but webhook notification failed`, err);
     }
-  } else {
-    console.info("[enquiry] received (no ENQUIRY_WEBHOOK_URL set):", enquiry.type, enquiry.email);
   }
 
   return NextResponse.json({ ok: true });

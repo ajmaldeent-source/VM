@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 import { getDictionary } from "@/content";
-import { href, isLocale } from "@/i18n/config";
+import { dateLocale, href, isLocale } from "@/i18n/config";
 import { pageLocale, type LocaleParams } from "@/i18n/server";
+import { listEnquiriesFor, type EnquiryRecord } from "@/lib/enquiryStore";
 import { requireAccount } from "@/lib/guards";
 import { isStaff } from "@/lib/roles";
 
@@ -15,8 +16,17 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 // Consumer area: only the signed-in person's own data. No staff tools here.
 export default async function AccountPage({ params }: LocaleParams) {
   const locale = await pageLocale(params);
-  const a = getDictionary(locale).ui.account;
+  const t = getDictionary(locale);
+  const a = t.ui.account;
   const user = await requireAccount(locale);
+
+  // Only this person's own enquiries (matched on their verified Google email).
+  let enquiries: EnquiryRecord[] | null = null;
+  try {
+    enquiries = await listEnquiriesFor(user.email);
+  } catch (err) {
+    console.error("[account] enquiries unavailable", err);
+  }
 
   return (
     <section className="container-x pb-24 pt-32 sm:pt-40">
@@ -50,7 +60,41 @@ export default async function AccountPage({ params }: LocaleParams) {
         </div>
         <div className="glass p-6 lg:col-span-2">
           <h2 className="text-lg font-semibold">{a.enquiries}</h2>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{a.enquiriesEmpty}</p>
+          {enquiries === null ? (
+            <p className="mt-4 text-sm text-red-600 dark:text-red-400">{a.enquiriesUnavailable}</p>
+          ) : enquiries.length === 0 ? (
+            <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{a.enquiriesEmpty}</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-xs text-slate-500">
+                  <tr>
+                    <th className="py-2 text-start font-medium">{a.colDate}</th>
+                    <th className="py-2 text-start font-medium">{a.colType}</th>
+                    <th className="py-2 text-start font-medium">{a.colStatus}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+                  {enquiries.map((e) => (
+                    <tr key={e.id}>
+                      <td className="py-3">
+                        {e.createdAt.toLocaleDateString(dateLocale(locale), { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kuwait" })}
+                      </td>
+                      <td className="py-3">
+                        {t.ui.form.types[e.type] ?? e.type}
+                        {e.service && <span className="text-slate-500"> · {t.services.find((s) => s.slug === e.service)?.title ?? e.service}</span>}
+                      </td>
+                      <td className="py-3">
+                        <span className="rounded-full bg-safety-500/10 px-3 py-1 text-xs font-semibold text-safety-600 dark:text-safety-400">
+                          {a.statuses[e.status]}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           <Link href={href(locale, "/contact")} className="btn-primary mt-6">{a.newEnquiry}</Link>
         </div>
       </div>

@@ -44,10 +44,22 @@ The language switch in the menu bar keeps the visitor on the same page.
 | `/admin/users` | Users & roles, permission matrix (admin only) |
 | `/admin/developer` | Settings status, runtime, endpoints (admin + developer) |
 | `/admin/login` | Staff sign-in; explains which settings are missing if not configured |
-| `POST /api/enquiry` | Validates and sanitizes enquiries; honeypot + per-IP rate limit; forwards to `ENQUIRY_WEBHOOK_URL` if set |
+| `/admin/enquiries` | Enquiry inbox with status filter and status updates (admin only) |
+| `POST /api/enquiry` | Validates, sanitizes and **saves** enquiries to the database; honeypot + per-IP rate limit; optional webhook notification |
 
 Translation text lives in `src/content/`. Both files share the `Dictionary` type, so a key missing in one language
 fails the build. The Arabic copy is a draft and must be reviewed by a native speaker before launch.
+
+## Enquiry storage (Netlify Database)
+
+Every enquiry is saved to Postgres via [Netlify Database](https://ntl.fyi/database) before the visitor sees
+"thank you". Admins manage them at `/admin/enquiries`; signed-in customers see their own under *My enquiries*.
+
+- Schema: `netlify/database/migrations/` — migrations are applied automatically on each deploy.
+  Add changes with `npx netlify-cli db migrations new -d "describe change"`; never edit an applied migration.
+- Data access: `src/lib/enquiryStore.ts` (parameterized SQL only).
+- Local development: `npx netlify-cli dev` starts a local Postgres; run `npx netlify-cli db migrations apply` once.
+- `ENQUIRY_WEBHOOK_URL` (optional) is called after saving, e.g. to email the sales team; a failed webhook does not lose the enquiry.
 
 ## Sign-in and roles
 
@@ -80,7 +92,7 @@ While the Google consent screen is in *Testing* mode, only accounts listed as te
 | WebGL/3D hero | Animated SVG valve schematic with pointer tilt | React Three Fiber scene once 3D assets are approved |
 | Mapbox dark map | Styled SVG placeholder | Mapbox GL with access token and confirmed coordinates |
 | Headless CMS | Typed local EN/AR content files; admin dashboard is read-only | Sanity/Strapi (or database) so the admin can edit content |
-| CRM routing | Generic webhook via env var | HubSpot/Salesforce integration |
+| CRM routing | Saved in database + optional webhook | HubSpot/Salesforce integration, email alerts to sales |
 | PDF brochures | Disabled "pending" button | CMS-managed file assets |
 | Client logos | Text names in marquee | Authorized logo files |
 | 404 page | Localized, but rendered in the browser (Next.js limitation with per-language root layouts) | Revisit on Next.js upgrade |
