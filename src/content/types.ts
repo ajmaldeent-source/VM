@@ -23,6 +23,7 @@ export type Product = {
   description: string;
   features: string[];
   specs: { label: string; value: string }[];
+  imageUrl: string;
 };
 
 export type InsightCategory = "audits" | "facility" | "projects" | "company";
@@ -55,7 +56,6 @@ export type Dictionary = {
   stats: { value: number; suffix: string; label: string }[];
   services: Service[];
   insights: Insight[];
-  products: Product[];
   productCategories: Record<ProductCategory | "all", string>;
   insightCategories: Record<InsightCategory | "all", string>;
   ui: {

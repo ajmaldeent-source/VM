@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.2",
     "@netlify/database": "^2.0.1",
     "framer-motion": "^11.18.2",
     "next": "^15.5.26",

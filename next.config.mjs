@@ -12,6 +12,8 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
+  // Admin uploads go through server actions; Netlify functions accept up to ~6 MB per request.
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

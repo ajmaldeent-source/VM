@@ -52,19 +52,27 @@ The language switch in the menu bar keeps the visitor on the same page.
 Translation text lives in `src/content/`. Both files share the `Dictionary` type, so a key missing in one language
 fails the build. The Arabic copy is a draft and must be reviewed by a native speaker before launch.
 
-## Hero banner media (pictures and video)
+## Content management (admin)
 
-The home hero rotates through slides defined in `src/content/media.ts`. Each slide is either
-`{ kind: "image" }` or `{ kind: "video" }`, in any order, with alt text in English and Arabic.
-Visitors can pause or step through the slides, and autoplay is off for anyone who prefers reduced motion.
+Admins manage website content at `/admin` — no code changes or redeploys needed.
 
-To use real media:
-1. Put approved files in `public/media/`. Images: about 1920×1080 JPG/WebP. Video: 8–20 s, muted, H.264 MP4
-   (plus WebM if possible), under 5 MB, with a poster JPG.
-2. Update the paths and alt text in `heroSlides`.
-3. Set `heroMediaIsPlaceholder = false` to remove the "Placeholder media" badge.
+| Page | What it does |
+| --- | --- |
+| `/admin/hero` | Hero banner: upload pictures or videos (with optional poster), EN/AR descriptions, show/hide, reorder, delete; seconds per slide; placeholder badge on/off |
+| `/admin/products` | Product list with search; publish/hide in one click |
+| `/admin/products/new`, `/admin/products/[id]` | Create/edit a product: EN/AR name, summary, description, features, specs; category, slug, order; upload/replace/remove picture; delete |
+| `/admin/products/import` | Bulk: CSV template, export all products, CSV import (check first, then import; updates by slug), bulk picture upload matched by file name (`gate-valve.jpg` → product `gate-valve`) |
 
-Product images come from `productImage()` in the same file (one placeholder per category for now).
+How it works:
+- Content is stored in Netlify Database (`products`, `hero_slides`, `site_settings` — see `netlify/database/migrations/0002_content-management`).
+  The migration also loads the placeholder content, which lives in `src/content/seed.ts`; the public site falls back to that
+  seed if the database isn't reachable (e.g. plain `next start` locally).
+- Uploaded files go to Netlify Blobs (store `media`) and are served from `/api/media/<key>` with long-lived caching and
+  HTTP range support for video. File types are checked from the file contents; SVG uploads are refused (they can carry scripts).
+- Upload limits: pictures 5 MB, videos 5.5 MB (Netlify functions accept ~6 MB per request). For longer videos, host them
+  on a video platform or CDN and add that as a later enhancement.
+- Only admins (`content:manage`) can use these pages; every server action re-checks the role.
+- Static placeholder media remains in `public/media/` and can be removed once real content is uploaded.
 
 ## Enquiry storage (Netlify Database)
 

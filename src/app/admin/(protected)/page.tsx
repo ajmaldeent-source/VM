@@ -3,6 +3,7 @@ import { getDictionary } from "@/content";
 import { locales } from "@/i18n/config";
 import { requireStaff } from "@/lib/guards";
 import Link from "next/link";
+import { countProducts } from "@/lib/contentStore";
 import { countByStatus } from "@/lib/enquiryStore";
 import { allowlists, can } from "@/lib/roles";
 
@@ -18,7 +19,8 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const { denied } = await searchParams;
   const en = getDictionary("en");
   const ar = getDictionary("ar");
-  const pageCount = (publicPages.length + en.services.length + en.products.length) * locales.length;
+  const products = await countProducts().catch(() => null);
+  const pageCount = (publicPages.length + en.services.length + (products?.published ?? 0)) * locales.length;
 
   // Only roles allowed to see enquiries get the count (it reveals customer activity).
   let newEnquiries: number | null = null;
@@ -33,7 +35,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const cards = [
     { label: "Public pages", value: pageCount, note: `${locales.length} languages` },
     { label: "Services", value: en.services.length, note: "EN + AR" },
-    { label: "Products", value: en.products.length, note: "EN + AR placeholders" },
+    { label: "Products", value: products?.total ?? "—", note: products ? `${products.published} published` : "Database unavailable" },
     { label: "Insights", value: en.insights.length, note: "EN + AR" },
     { label: "Staff accounts", value: allowlists.admin.length + allowlists.developer.length, note: `${allowlists.admin.length} admin · ${allowlists.developer.length} developer` },
   ];

@@ -1,4 +1,4 @@
-import { getDatabase } from "@netlify/database";
+import { query } from "./db";
 import type { Enquiry } from "./enquiry";
 
 // Data access for the enquiries table (schema: netlify/database/migrations).
@@ -45,11 +45,6 @@ const toRecord = (r: Row): EnquiryRecord => ({
   userEmail: r.user_email,
 });
 
-/** Runs a parameterized query and returns typed rows. */
-async function query<T>(text: string, params: unknown[] = []): Promise<T[]> {
-  const result = await getDatabase().pool.query(text, params);
-  return result.rows as T[];
-}
 const COLUMNS = "id, created_at, status, type, service, name, company, email, phone, message, locale, user_email";
 
 export async function saveEnquiry(e: Enquiry, userEmail: string | null): Promise<string> {

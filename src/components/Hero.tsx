@@ -4,12 +4,14 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getDictionary } from "@/content";
-import { heroMediaIsPlaceholder, heroSlideIntervalMs, heroSlides } from "@/content/media";
+import type { PublicHeroSlide } from "@/content/model";
 import { href, type Locale } from "@/i18n/config";
 
-// Full-bleed hero banner that rotates through pictures and videos (see src/content/media.ts).
+type Props = { locale: Locale; slides: PublicHeroSlide[]; intervalMs: number; showPlaceholderBadge: boolean };
+
+// Full-bleed hero banner that rotates through pictures and videos managed in /admin/hero.
 // Auto-advance can be paused (WCAG 2.2.2) and is off for visitors who prefer reduced motion.
-export default function Hero({ locale }: { locale: Locale }) {
+export default function Hero({ locale, slides: heroSlides, intervalMs, showPlaceholderBadge }: Props) {
   const t = getDictionary(locale);
   const h = t.ui.hero;
   const reduce = useReducedMotion();
@@ -23,9 +25,9 @@ export default function Hero({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     if (!autoplay) return;
-    const id = setTimeout(() => go(index + 1), heroSlideIntervalMs);
+    const id = setTimeout(() => go(index + 1), intervalMs);
     return () => clearTimeout(id);
-  }, [autoplay, index, go]);
+  }, [autoplay, index, go, intervalMs]);
 
   // Only the visible video plays; the rest stay paused on their poster frame.
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function Hero({ locale }: { locale: Locale }) {
       <div className="absolute inset-0 -z-20">
         {heroSlides.map((s, i) => (
           <div
-            key={i}
+            key={s.id}
             role="group"
             aria-roledescription="slide"
             aria-label={h.slide(i + 1, count)}
@@ -58,8 +60,8 @@ export default function Hero({ locale }: { locale: Locale }) {
             {s.kind === "image" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={s.src}
-                alt={s.alt[locale]}
+                src={s.mediaUrl}
+                alt={s.alt}
                 className="h-full w-full object-cover"
                 loading={i === 0 ? "eager" : "lazy"}
                 fetchPriority={i === 0 ? "high" : "auto"}
@@ -70,17 +72,14 @@ export default function Hero({ locale }: { locale: Locale }) {
                   videos.current[i] = el;
                 }}
                 className="h-full w-full object-cover"
-                poster={s.poster}
+                poster={s.posterUrl ?? undefined}
                 muted
                 loop
                 playsInline
                 preload={i === 0 ? "auto" : "metadata"}
-                aria-label={s.alt[locale]}
-              >
-                {s.sources.map((src) => (
-                  <source key={src.src} src={src.src} type={src.type} />
-                ))}
-              </video>
+                aria-label={s.alt}
+                src={s.mediaUrl}
+              />
             )}
           </div>
         ))}
@@ -92,7 +91,7 @@ export default function Hero({ locale }: { locale: Locale }) {
         className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-950 via-ink-950/70 to-ink-950/30 sm:bg-gradient-to-r sm:from-ink-950/95 sm:via-ink-950/70 sm:to-ink-950/10 rtl:sm:bg-gradient-to-l"
       />
 
-      {heroMediaIsPlaceholder && (
+      {showPlaceholderBadge && (
         <span className="absolute end-4 top-24 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-xs text-white/70 backdrop-blur sm:end-8">
           {h.placeholderBadge}
         </span>

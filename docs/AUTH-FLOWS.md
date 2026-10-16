@@ -65,6 +65,7 @@ Defined once in `src/lib/roles.ts`; the "Users & roles" admin page displays the 
 | --- | :-: | :-: | :-: |
 | `dashboard:view` | ✓ | ✓ | — |
 | `content:view` | ✓ | ✓ | — |
+| `content:manage` | ✓ | — | — |
 | `users:view` | ✓ | — | — |
 | `devtools:view` | ✓ | ✓ | — |
 | `enquiries:view` | ✓ | — | — |

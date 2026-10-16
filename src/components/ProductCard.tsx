@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getDictionary, type Product } from "@/content";
-import { productImage } from "@/content/media";
 import { href, type Locale } from "@/i18n/config";
 
 export default function ProductCard({ product, locale }: { product: Product; locale: Locale }) {
@@ -13,7 +12,7 @@ export default function ProductCard({ product, locale }: { product: Product; loc
       <div className="relative aspect-[4/3] overflow-hidden bg-ink-900">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={productImage(product.category)}
+          src={product.imageUrl}
           alt=""
           loading="lazy"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"

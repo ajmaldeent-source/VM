@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import { getDictionary } from "@/content";
+import { localizeProduct } from "@/content/model";
 import { isLocale } from "@/i18n/config";
+import { getPublishedProduct } from "@/lib/contentStore";
 import { pageLocale, type LocaleParams } from "@/i18n/server";
 import ContactForm from "./ContactForm";
 import LocationMap from "./LocationMap";
@@ -17,7 +19,8 @@ export default async function ContactPage({ params, searchParams }: Props) {
   const locale = await pageLocale(params);
   const t = getDictionary(locale);
   const { product: productSlug } = await searchParams;
-  const product = t.products.find((p) => p.slug === productSlug);
+  const record = productSlug && /^[a-z0-9-]{1,80}$/.test(productSlug) ? await getPublishedProduct(productSlug) : null;
+  const product = record ? localizeProduct(record, locale) : null;
   const c = t.ui.contactPage;
   const rows: [string, string, boolean][] = [
     [c.labels.address, t.company.contact.address, false],

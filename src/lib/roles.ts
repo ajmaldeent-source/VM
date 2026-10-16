@@ -13,6 +13,7 @@ export type StaffRole = Exclude<Role, "consumer">;
 export const permissions = {
   "dashboard:view": ["admin", "developer"],
   "content:view": ["admin", "developer"],
+  "content:manage": ["admin"],
   "users:view": ["admin"],
   "devtools:view": ["admin", "developer"],
   // Enquiries hold customers' personal data, so only admins see or change them.

@@ -8,17 +8,28 @@ import Reveal from "@/components/Reveal";
 import ServiceGrid from "@/components/ServiceGrid";
 import Stats from "@/components/Stats";
 import { getDictionary } from "@/content";
+import { localizeProduct, localizeSlide } from "@/content/model";
+import { getSettings, listActiveSlides, listPublishedProducts } from "@/lib/contentStore";
 import { href } from "@/i18n/config";
 import { pageLocale, type LocaleParams } from "@/i18n/server";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home({ params }: LocaleParams) {
   const locale = await pageLocale(params);
   const t = getDictionary(locale);
+  const [slides, settings, products] = await Promise.all([listActiveSlides(), getSettings(), listPublishedProducts()]);
+  const featured = products.slice(0, 4).map((p) => localizeProduct(p, locale));
   const h = t.ui.home_;
 
   return (
     <>
-      <Hero locale={locale} />
+      <Hero
+        locale={locale}
+        slides={slides.map((s, i) => localizeSlide(s, locale, i))}
+        intervalMs={settings.heroIntervalMs}
+        showPlaceholderBadge={settings.heroShowPlaceholderBadge}
+      />
 
       <section className="container-x relative z-10 mt-12">
         <Stats stats={t.stats} />
@@ -46,7 +57,7 @@ export default async function Home({ params }: LocaleParams) {
           </Link>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {t.products.slice(0, 4).map((p, i) => (
+          {featured.map((p, i) => (
             <Reveal key={p.slug} delay={i * 0.06}>
               <ProductCard product={p} locale={locale} />
             </Reveal>

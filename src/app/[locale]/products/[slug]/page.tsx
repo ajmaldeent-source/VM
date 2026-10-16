@@ -4,21 +4,22 @@ import { notFound } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 import { getDictionary } from "@/content";
-import { productImage } from "@/content/media";
-import { href, isLocale, locales } from "@/i18n/config";
+import { localizeProduct } from "@/content/model";
+import { href, isLocale } from "@/i18n/config";
 import { pageLocale } from "@/i18n/server";
+import { getPublishedProduct, listPublishedProducts } from "@/lib/contentStore";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-export function generateStaticParams() {
-  return locales.flatMap((locale) => getDictionary(locale).products.map((p) => ({ locale, slug: p.slug })));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  const p = getDictionary(locale).products.find((x) => x.slug === slug);
-  return p ? { title: p.name, description: p.summary } : {};
+  const record = await getPublishedProduct(slug);
+  if (!record) return {};
+  const p = localizeProduct(record, locale);
+  return { title: p.name, description: p.summary };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -26,9 +27,13 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const t = getDictionary(locale);
   const pp = t.ui.productPage;
-  const product = t.products.find((p) => p.slug === slug);
-  if (!product) notFound();
-  const related = t.products.filter((p) => p.category === product.category && p.slug !== slug).slice(0, 3);
+  const record = await getPublishedProduct(slug);
+  if (!record) notFound();
+  const product = localizeProduct(record, locale);
+  const related = (await listPublishedProducts())
+    .filter((p) => p.category === product.category && p.slug !== slug)
+    .slice(0, 3)
+    .map((p) => localizeProduct(p, locale));
 
   return (
     <>
@@ -41,7 +46,7 @@ export default async function ProductPage({ params }: Props) {
           <Reveal>
             <figure className="glass overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={productImage(product.category)} alt={product.name} className="aspect-[4/3] w-full object-cover" />
+              <img src={product.imageUrl} alt={product.name} className="aspect-[4/3] w-full object-cover" />
               <figcaption className="px-5 py-3 text-xs text-slate-500">{pp.placeholderNote}</figcaption>
             </figure>
           </Reveal>

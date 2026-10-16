@@ -3,14 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { getDictionary, type ProductCategory } from "@/content";
+import { getDictionary, type Product, type ProductCategory } from "@/content";
 import type { Locale } from "@/i18n/config";
 
-export default function ProductList({ locale }: { locale: Locale }) {
+export default function ProductList({ locale, products }: { locale: Locale; products: Product[] }) {
   const t = getDictionary(locale);
-  const categories: (ProductCategory | "all")[] = ["all", ...Array.from(new Set(t.products.map((p) => p.category)))];
+  const categories: (ProductCategory | "all")[] = ["all", ...Array.from(new Set(products.map((p) => p.category)))];
   const [active, setActive] = useState<ProductCategory | "all">("all");
-  const shown = active === "all" ? t.products : t.products.filter((p) => p.category === active);
+  const shown = active === "all" ? products : products.filter((p) => p.category === active);
 
   return (
     <>
