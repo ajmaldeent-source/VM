@@ -80,6 +80,17 @@ export default function Header({ locale }: { locale: Locale }) {
             {t.ui.switchLanguage}
           </Link>
           <ThemeToggle locale={locale} />
+          <Link
+            href={href(locale, "/account")}
+            aria-label={t.ui.account.menu}
+            title={t.ui.account.menu}
+            className="grid h-10 w-10 place-items-center rounded-full text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21a8 8 0 0116 0" />
+            </svg>
+          </Link>
           <Link href={href(locale, "/contact")} className="btn-primary ms-1 hidden !py-2 sm:inline-flex">
             {t.ui.requestQuote}
           </Link>

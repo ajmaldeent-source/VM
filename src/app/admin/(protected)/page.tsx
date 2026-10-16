@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
 import { getDictionary } from "@/content";
 import { locales } from "@/i18n/config";
-import { adminEmails } from "@/lib/auth";
+import { requireStaff } from "@/lib/guards";
+import { allowlists } from "@/lib/roles";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 const publicPages = ["/", "/about", "/services", "/insights", "/contact"];
 
-export default function AdminDashboard() {
+type Props = { searchParams: Promise<{ denied?: string }> };
+
+export default async function AdminDashboard({ searchParams }: Props) {
+  const user = await requireStaff("dashboard:view");
+  const { denied } = await searchParams;
   const en = getDictionary("en");
   const ar = getDictionary("ar");
   const pageCount = (publicPages.length + en.services.length) * locales.length;
@@ -17,7 +22,7 @@ export default function AdminDashboard() {
     { label: "Public pages", value: pageCount, note: `${locales.length} languages` },
     { label: "Services", value: en.services.length, note: "EN + AR" },
     { label: "Insights", value: en.insights.length, note: "EN + AR" },
-    { label: "Admin accounts", value: adminEmails.length, note: "Google allowlist" },
+    { label: "Staff accounts", value: allowlists.admin.length + allowlists.developer.length, note: `${allowlists.admin.length} admin · ${allowlists.developer.length} developer` },
   ];
 
   const config = [
@@ -34,7 +39,14 @@ export default function AdminDashboard() {
       <div>
         <p className="eyebrow">Dashboard</p>
         <h1 className="mt-2 text-3xl font-bold">Website overview</h1>
+        <p className="mt-1 text-sm text-slate-500">Signed in as {user.role}.</p>
       </div>
+
+      {denied && (
+        <p role="alert" className="rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+          Your role ({user.role}) doesn&apos;t have access to that page.
+        </p>
+      )}
 
       <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((c) => (

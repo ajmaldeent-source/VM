@@ -121,5 +121,24 @@ export type Dictionary = {
     };
     footer: { company: string; services: string; contact: string; note: string };
     notFound: { title: string; back: string };
+    account: {
+      menu: string;
+      loginTitle: string;
+      loginBody: string;
+      continueGoogle: string;
+      redirecting: string;
+      notConfigured: string;
+      title: string;
+      welcome: (name: string) => string;
+      profile: string;
+      name: string;
+      email: string;
+      enquiries: string;
+      enquiriesEmpty: string;
+      newEnquiry: string;
+      signOut: string;
+      staffNote: string;
+      staffLink: string;
+    };
   };
 };

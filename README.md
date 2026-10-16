@@ -38,12 +38,21 @@ The language switch in the menu bar keeps the visitor on the same page.
 | `/{en,ar}/services/[slug]` | Capabilities, expandable specs, brochure slot, related services |
 | `/{en,ar}/insights` | Articles with animated category filter |
 | `/{en,ar}/contact` | 3-step enquiry form, map placeholder, contact details |
-| `/admin` | Admin dashboard (Google sign-in, allowlisted accounts only) |
-| `/admin/login` | Google sign-in page; explains which settings are missing if not configured |
+| `/{en,ar}/account` | Customer account (any signed-in Google user) |
+| `/{en,ar}/account/login` | Customer sign-in, localized |
+| `/admin` | Staff dashboard (admin + developer) |
+| `/admin/users` | Users & roles, permission matrix (admin only) |
+| `/admin/developer` | Settings status, runtime, endpoints (admin + developer) |
+| `/admin/login` | Staff sign-in; explains which settings are missing if not configured |
 | `POST /api/enquiry` | Validates and sanitizes enquiries; honeypot + per-IP rate limit; forwards to `ENQUIRY_WEBHOOK_URL` if set |
 
 Translation text lives in `src/content/`. Both files share the `Dictionary` type, so a key missing in one language
 fails the build. The Arabic copy is a draft and must be reviewed by a native speaker before launch.
+
+## Sign-in and roles
+
+Admins, developers and consumers have separate login pages, areas and permissions.
+See [docs/AUTH-FLOWS.md](docs/AUTH-FLOWS.md) for the full concept and flow diagrams.
 
 ## Admin sign-in setup (Google)
 
@@ -58,10 +67,11 @@ fails the build. The Arabic copy is a draft and must be reviewed by a native spe
    | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From step 1 |
    | `NEXTAUTH_SECRET` | Random string: `openssl rand -base64 32` |
    | `NEXTAUTH_URL` | The site URL, e.g. `https://papaya-vacherin-eb848c.netlify.app` |
-   | `ADMIN_EMAILS` | Comma-separated Google accounts allowed in, e.g. `owner@company.com,it@company.com` |
+   | `ADMIN_EMAILS` | Comma-separated admin accounts, e.g. `owner@company.com` |
+   | `DEVELOPER_EMAILS` | Comma-separated developer accounts (optional) |
 
-Only verified Google accounts on `ADMIN_EMAILS` can sign in, and the list is re-checked on every admin request,
-so removing an address revokes access at once. Sessions last 8 hours.
+Roles are re-checked on every request, so removing an address revokes access at once. Sessions last 8 hours.
+While the Google consent screen is in *Testing* mode, only accounts listed as test users can sign in.
 
 ## Deliberate POC simplifications
 
