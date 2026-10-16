@@ -36,6 +36,8 @@ The language switch in the menu bar keeps the visitor on the same page.
 | `/{en,ar}/about` | Company intro, values, milestones timeline |
 | `/{en,ar}/services` | Service grid |
 | `/{en,ar}/services/[slug]` | Capabilities, expandable specs, brochure slot, related services |
+| `/{en,ar}/products` | Product catalogue with category filter (placeholders) |
+| `/{en,ar}/products/[slug]` | Product detail: image, features, specs, related, "Request a quote" (pre-fills the contact form) |
 | `/{en,ar}/insights` | Articles with animated category filter |
 | `/{en,ar}/contact` | 3-step enquiry form, map placeholder, contact details |
 | `/{en,ar}/account` | Customer account (any signed-in Google user) |
@@ -49,6 +51,20 @@ The language switch in the menu bar keeps the visitor on the same page.
 
 Translation text lives in `src/content/`. Both files share the `Dictionary` type, so a key missing in one language
 fails the build. The Arabic copy is a draft and must be reviewed by a native speaker before launch.
+
+## Hero banner media (pictures and video)
+
+The home hero rotates through slides defined in `src/content/media.ts`. Each slide is either
+`{ kind: "image" }` or `{ kind: "video" }`, in any order, with alt text in English and Arabic.
+Visitors can pause or step through the slides, and autoplay is off for anyone who prefers reduced motion.
+
+To use real media:
+1. Put approved files in `public/media/`. Images: about 1920×1080 JPG/WebP. Video: 8–20 s, muted, H.264 MP4
+   (plus WebM if possible), under 5 MB, with a poster JPG.
+2. Update the paths and alt text in `heroSlides`.
+3. Set `heroMediaIsPlaceholder = false` to remove the "Placeholder media" badge.
+
+Product images come from `productImage()` in the same file (one placeholder per category for now).
 
 ## Enquiry storage (Netlify Database)
 

@@ -26,6 +26,7 @@ export default function Header({ locale }: { locale: Locale }) {
     { href: href(locale, "/"), label: t.nav.home },
     { href: href(locale, "/about"), label: t.nav.about },
     { href: href(locale, "/services"), label: t.nav.services },
+    { href: href(locale, "/products"), label: t.nav.products },
     { href: href(locale, "/insights"), label: t.nav.insights },
     { href: href(locale, "/contact"), label: t.nav.contact },
   ];
@@ -39,7 +40,7 @@ export default function Header({ locale }: { locale: Locale }) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-4">
       <div
-        className={`mx-auto flex h-14 max-w-5xl items-center justify-between rounded-full border pe-2 ps-5 backdrop-blur-xl transition-all duration-300 ${
+        className={`mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full border pe-2 ps-5 backdrop-blur-xl transition-all duration-300 ${
           scrolled || open
             ? "border-slate-200/80 bg-white/80 shadow-lg shadow-slate-900/5 dark:border-white/10 dark:bg-ink-900/75 dark:shadow-black/30"
             : "border-white/10 bg-white/60 dark:bg-white/[0.04]"
@@ -53,13 +54,13 @@ export default function Header({ locale }: { locale: Locale }) {
           <span className="sr-only"> — {t.ui.home}</span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-0.5 lg:flex">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-3.5 py-2 text-sm font-medium transition ${
                 isActive(item.href)
                   ? "bg-safety-500/10 text-safety-600 dark:text-safety-400"
                   : "text-slate-600 hover:bg-slate-900/5 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
@@ -96,7 +97,7 @@ export default function Header({ locale }: { locale: Locale }) {
           </Link>
           <button
             type="button"
-            className="grid h-10 w-10 place-items-center rounded-full md:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? t.ui.closeMenu : t.ui.openMenu}
@@ -113,7 +114,7 @@ export default function Header({ locale }: { locale: Locale }) {
         <nav
           id="mobile-nav"
           aria-label="Mobile"
-          className="mx-auto mt-2 max-w-5xl rounded-3xl border border-slate-200/80 bg-white/90 p-2 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/90 md:hidden"
+          className="mx-auto mt-2 max-w-6xl rounded-3xl border border-slate-200/80 bg-white/90 p-2 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-ink-900/90 lg:hidden"
         >
           <ul className="flex flex-col gap-1">
             {nav.map((item) => (

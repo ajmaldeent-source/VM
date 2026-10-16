@@ -12,11 +12,16 @@ const empty = (locale: Locale): Enquiry => ({
   type: "", service: "", name: "", company: "", email: "", phone: "", message: "", locale,
 });
 
-export default function ContactForm({ locale }: { locale: Locale }) {
+type Props = { locale: Locale; product?: { slug: string; name: string } };
+
+export default function ContactForm({ locale, product }: Props) {
   const t = getDictionary(locale);
   const f = t.ui.form;
   const [step, setStep] = useState(0);
-  const [data, setData] = useState<Enquiry>(() => empty(locale));
+  // Coming from a product page: start as a quote request that names the product.
+  const initial = (): Enquiry =>
+    product ? { ...empty(locale), type: "quote", message: `${t.ui.form.productPrefix}: ${product.name}\n` } : empty(locale);
+  const [data, setData] = useState<Enquiry>(initial);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [serverError, setServerError] = useState("");

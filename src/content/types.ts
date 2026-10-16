@@ -13,6 +13,18 @@ export type Service = {
   specs: { label: string; value: string }[];
 };
 
+export type ProductCategory = "valves" | "instruments" | "fittings" | "spares";
+
+export type Product = {
+  slug: string;
+  category: ProductCategory;
+  name: string;
+  summary: string;
+  description: string;
+  features: string[];
+  specs: { label: string; value: string }[];
+};
+
 export type InsightCategory = "audits" | "facility" | "projects" | "company";
 
 export type Insight = {
@@ -38,11 +50,13 @@ export type Dictionary = {
     intro: string;
     contact: { address: string; phone: string; email: string; hours: string };
   };
-  nav: { home: string; about: string; services: string; insights: string; contact: string };
+  nav: { home: string; about: string; services: string; products: string; insights: string; contact: string };
   sectors: string[];
   stats: { value: number; suffix: string; label: string }[];
   services: Service[];
   insights: Insight[];
+  products: Product[];
+  productCategories: Record<ProductCategory | "all", string>;
   insightCategories: Record<InsightCategory | "all", string>;
   ui: {
     skipToContent: string;
@@ -53,7 +67,19 @@ export type Dictionary = {
     toDark: string;
     switchLanguage: string;
     home: string;
-    hero: { location: string; titleA: string; titleHighlight: string; titleB: string; explore: string };
+    hero: {
+      location: string;
+      titleA: string;
+      titleHighlight: string;
+      titleB: string;
+      explore: string;
+      pause: string;
+      play: string;
+      prev: string;
+      next: string;
+      slide: (n: number, total: number) => string;
+      placeholderBadge: string;
+    };
     home_: {
       scopeEyebrow: string;
       scopeTitle: string;
@@ -63,6 +89,9 @@ export type Dictionary = {
       insightsEyebrow: string;
       insightsTitle: string;
       allInsights: string;
+      productsEyebrow: string;
+      productsTitle: string;
+      allProducts: string;
     };
     viewCapabilities: string;
     cta: { title: string; body: string; button: string };
@@ -84,6 +113,17 @@ export type Dictionary = {
       brochureBody: string;
       brochureButton: string;
       others: string;
+    };
+    productsPage: { eyebrow: string; title: string; intro: string; filterLabel: string; viewProduct: string };
+    productPage: {
+      eyebrow: string;
+      features: string;
+      specs: string;
+      requestQuote: string;
+      quoteNote: string;
+      related: string;
+      back: string;
+      placeholderNote: string;
     };
     insightsPage: { eyebrow: string; title: string; intro: string; filterLabel: string };
     contactPage: {
@@ -108,6 +148,7 @@ export type Dictionary = {
       phone: string;
       message: string;
       messagePlaceholder: string;
+      productPrefix: string;
       back: string;
       continue: string;
       send: string;

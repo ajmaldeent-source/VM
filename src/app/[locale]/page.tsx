@@ -3,6 +3,7 @@ import CTA from "@/components/CTA";
 import Hero from "@/components/Hero";
 import InsightCard from "@/components/InsightCard";
 import Marquee from "@/components/Marquee";
+import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 import ServiceGrid from "@/components/ServiceGrid";
 import Stats from "@/components/Stats";
@@ -19,7 +20,7 @@ export default async function Home({ params }: LocaleParams) {
     <>
       <Hero locale={locale} />
 
-      <section className="container-x relative z-10 -mt-12">
+      <section className="container-x relative z-10 mt-12">
         <Stats stats={t.stats} />
       </section>
 
@@ -31,6 +32,25 @@ export default async function Home({ params }: LocaleParams) {
         </Reveal>
         <div className="mt-12">
           <ServiceGrid locale={locale} />
+        </div>
+      </section>
+
+      <section className="container-x pb-24">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <Reveal>
+            <p className="eyebrow">{h.productsEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">{h.productsTitle}</h2>
+          </Reveal>
+          <Link href={href(locale, "/products")} className="btn-ghost">
+            {h.allProducts}
+          </Link>
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {t.products.slice(0, 4).map((p, i) => (
+            <Reveal key={p.slug} delay={i * 0.06}>
+              <ProductCard product={p} locale={locale} />
+            </Reveal>
+          ))}
         </div>
       </section>
 

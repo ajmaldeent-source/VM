@@ -4,7 +4,7 @@ import { href, type Locale } from "@/i18n/config";
 
 export default function Footer({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
-  const nav = (["home", "about", "services", "insights", "contact"] as const).map((k) => ({
+  const nav = (["home", "about", "services", "products", "insights", "contact"] as const).map((k) => ({
     href: href(locale, k === "home" ? "/" : `/${k}`),
     label: t.nav[k],
   }));

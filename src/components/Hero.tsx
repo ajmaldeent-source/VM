@@ -1,72 +1,131 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getDictionary } from "@/content";
+import { heroMediaIsPlaceholder, heroSlideIntervalMs, heroSlides } from "@/content/media";
 import { href, type Locale } from "@/i18n/config";
 
-// Lightweight stand-in for the WebGL hero: an SVG valve/pipeline schematic that
-// tilts with the pointer. Swap for a React Three Fiber scene once 3D assets are approved.
+// Full-bleed hero banner that rotates through pictures and videos (see src/content/media.ts).
+// Auto-advance can be paused (WCAG 2.2.2) and is off for visitors who prefer reduced motion.
 export default function Hero({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
+  const h = t.ui.hero;
   const reduce = useReducedMotion();
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 80, damping: 20 });
-  const sy = useSpring(my, { stiffness: 80, damping: 20 });
-  const rotateY = useTransform(sx, [-0.5, 0.5], [-12, 12]);
-  const rotateX = useTransform(sy, [-0.5, 0.5], [10, -10]);
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const videos = useRef<(HTMLVideoElement | null)[]>([]);
+  const count = heroSlides.length;
+  const autoplay = playing && !reduce && count > 1;
 
-  const onMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (reduce) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  };
+  const go = useCallback((i: number) => setIndex(((i % count) + count) % count), [count]);
+
+  useEffect(() => {
+    if (!autoplay) return;
+    const id = setTimeout(() => go(index + 1), heroSlideIntervalMs);
+    return () => clearTimeout(id);
+  }, [autoplay, index, go]);
+
+  // Only the visible video plays; the rest stay paused on their poster frame.
+  useEffect(() => {
+    videos.current.forEach((v, i) => {
+      if (!v) return;
+      if (i === index && playing && !reduce) v.play().catch(() => {});
+      else v.pause();
+    });
+  }, [index, playing, reduce]);
+
+  const rtl = locale === "ar";
 
   return (
     <section
-      onPointerMove={onMove}
-      onPointerLeave={() => {
-        mx.set(0);
-        my.set(0);
-      }}
-      className="noise relative isolate overflow-hidden bg-ink-950 pb-24 pt-32 text-white sm:pt-40"
+      aria-roledescription="carousel"
+      aria-label={t.company.tagline}
+      className="relative isolate flex min-h-[88vh] items-end overflow-hidden bg-ink-950 pb-28 pt-32 text-white sm:items-center sm:pb-24"
     >
-      <div aria-hidden className="absolute inset-0 -z-10">
-        <div className="absolute -start-40 top-0 h-[36rem] w-[36rem] rounded-full bg-safety-500/20 blur-[120px]" />
-        <div className="absolute -end-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-volt-500/20 blur-[120px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+      {/* Media layers, stacked; the active one fades in. */}
+      <div className="absolute inset-0 -z-20">
+        {heroSlides.map((s, i) => (
+          <div
+            key={i}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={h.slide(i + 1, count)}
+            aria-hidden={i !== index}
+            className={`absolute inset-0 transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`}
+          >
+            {s.kind === "image" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={s.src}
+                alt={s.alt[locale]}
+                className="h-full w-full object-cover"
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : "auto"}
+              />
+            ) : (
+              <video
+                ref={(el) => {
+                  videos.current[i] = el;
+                }}
+                className="h-full w-full object-cover"
+                poster={s.poster}
+                muted
+                loop
+                playsInline
+                preload={i === 0 ? "auto" : "metadata"}
+                aria-label={s.alt[locale]}
+              >
+                {s.sources.map((src) => (
+                  <source key={src.src} src={src.src} type={src.type} />
+                ))}
+              </video>
+            )}
+          </div>
+        ))}
       </div>
 
-      <div className="container-x grid items-center gap-12 lg:grid-cols-2">
-        <div>
+      {/* Contrast overlay so text stays readable on any picture. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-ink-950 via-ink-950/70 to-ink-950/30 sm:bg-gradient-to-r sm:from-ink-950/95 sm:via-ink-950/70 sm:to-ink-950/10 rtl:sm:bg-gradient-to-l"
+      />
+
+      {heroMediaIsPlaceholder && (
+        <span className="absolute end-4 top-24 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-xs text-white/70 backdrop-blur sm:end-8">
+          {h.placeholderBadge}
+        </span>
+      )}
+
+      <div className="container-x">
+        <div className="max-w-2xl">
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-slate-300 backdrop-blur"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-slate-200 backdrop-blur"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-safety-500" />
-            {t.ui.hero.location} · {t.sectors.join(" · ")}
+            {h.location} · {t.sectors.join(" · ")}
           </motion.p>
           <motion.h1
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 text-5xl font-bold leading-[1.05] text-white rtl:leading-[1.3] sm:text-6xl lg:text-7xl"
+            className="mt-6 text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl rtl:leading-[1.3]"
           >
-            {t.ui.hero.titleA}
+            {h.titleA}
             <br />
             <span className="bg-gradient-to-r from-safety-400 via-safety-500 to-volt-400 bg-clip-text pb-2 text-transparent">
-              {t.ui.hero.titleHighlight}
+              {h.titleHighlight}
             </span>{" "}
-            {t.ui.hero.titleB}
+            {h.titleB}
           </motion.h1>
           <motion.p
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.7 }}
-            className="mt-6 max-w-xl text-lg text-slate-300"
+            className="mt-6 max-w-xl text-lg text-slate-200"
           >
             {t.company.intro}
           </motion.p>
@@ -80,76 +139,64 @@ export default function Hero({ locale }: { locale: Locale }) {
               {t.ui.requestQuote}
               <span aria-hidden className="rtl:rotate-180">→</span>
             </Link>
-            <Link href={href(locale, "/services")} className="btn border border-white/20 text-white hover:border-white/50">
-              {t.ui.hero.explore}
+            <Link href={href(locale, "/products")} className="btn border border-white/25 text-white backdrop-blur hover:border-white/60">
+              {t.nav.products}
             </Link>
           </motion.div>
         </div>
-
-        <div className="relative mx-auto w-full max-w-md [perspective:1000px] lg:max-w-none">
-          <motion.div style={{ rotateX, rotateY }} className="relative aspect-square [transform-style:preserve-3d]">
-            <div className="absolute inset-6 rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-sm" />
-            <ValveSchematic />
-          </motion.div>
-        </div>
       </div>
-    </section>
-  );
-}
 
-function ValveSchematic() {
-  return (
-    <svg viewBox="0 0 400 400" className="absolute inset-0 h-full w-full" aria-hidden direction="ltr">
-      <defs>
-        <linearGradient id="pipe" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#334155" />
-          <stop offset=".5" stopColor="#94a3b8" />
-          <stop offset="1" stopColor="#1e293b" />
-        </linearGradient>
-        <linearGradient id="body" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stopColor="#ff8a3d" />
-          <stop offset="1" stopColor="#e05a00" />
-        </linearGradient>
-      </defs>
-      {/* pipeline */}
-      <rect x="20" y="205" width="360" height="50" rx="6" fill="url(#pipe)" />
-      <rect x="70" y="195" width="14" height="70" rx="3" fill="#475569" />
-      <rect x="316" y="195" width="14" height="70" rx="3" fill="#475569" />
-      {/* flow particles */}
-      {[0, 1, 2, 3].map((i) => (
-        <circle key={i} r="4" cy="230" fill="#4cc3ff">
-          <animate attributeName="cx" from="20" to="380" dur="3s" begin={`${i * 0.75}s`} repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0;1;1;0" dur="3s" begin={`${i * 0.75}s`} repeatCount="indefinite" />
-        </circle>
-      ))}
-      {/* valve body */}
-      <path d="M140 180 L200 230 L140 280 Z M260 180 L200 230 L260 280 Z" fill="url(#body)" />
-      <rect x="192" y="120" width="16" height="90" fill="#cbd5e1" />
-      {/* handwheel */}
-      <g transform="translate(200 110)">
-        <g>
-          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="18s" repeatCount="indefinite" />
-          <circle r="46" fill="none" stroke="#e2e8f0" strokeWidth="8" />
-          {[0, 60, 120].map((a) => (
-            <rect key={a} x="-3" y="-46" width="6" height="92" fill="#e2e8f0" transform={`rotate(${a})`} />
-          ))}
-          <circle r="10" fill="#ff6a00" />
-        </g>
-      </g>
-      {/* gauge */}
-      <g transform="translate(320 140)">
-        <rect x="-4" y="20" width="8" height="45" fill="#64748b" />
-        <circle r="30" fill="#0b1220" stroke="#94a3b8" strokeWidth="4" />
-        <path d="M-20 10 A22 22 0 1 1 20 10" fill="none" stroke="#334155" strokeWidth="4" />
-        <line x1="0" y1="0" x2="0" y2="-20" stroke="#ff6a00" strokeWidth="3" strokeLinecap="round">
-          <animateTransform attributeName="transform" type="rotate" values="-60;40;-10;60;-60" dur="8s" repeatCount="indefinite" />
-        </line>
-      </g>
-      {/* labels */}
-      <g fontFamily="monospace" fontSize="10" fill="#94a3b8">
-        <text x="28" y="300">DN 200 · CL 600</text>
-        <text x="272" y="300">PT-101</text>
-      </g>
-    </svg>
+      {count > 1 && (
+        <div className="absolute inset-x-0 bottom-8 z-10">
+          <div className="container-x flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPlaying((p) => !p)}
+              aria-label={playing ? h.pause : h.play}
+              className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-black/30 backdrop-blur hover:border-white/60"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                {playing ? <path d="M6 4h4v16H6zM14 4h4v16h-4z" /> : <path d="M7 4l13 8-13 8z" />}
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => go(index - 1)}
+              aria-label={h.prev}
+              className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-black/30 backdrop-blur hover:border-white/60"
+            >
+              <span aria-hidden className={rtl ? "rotate-180" : ""}>‹</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => go(index + 1)}
+              aria-label={h.next}
+              className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-black/30 backdrop-blur hover:border-white/60"
+            >
+              <span aria-hidden className={rtl ? "rotate-180" : ""}>›</span>
+            </button>
+            <div className="ms-2 flex items-center gap-2">
+              {heroSlides.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={h.slide(i + 1, count)}
+                  aria-current={i === index ? "true" : undefined}
+                  className="group relative grid h-6 place-items-center"
+                >
+                  <span
+                    className={`block h-1.5 rounded-full transition-all ${
+                      i === index ? "w-8 bg-safety-500" : "w-3 bg-white/40 group-hover:bg-white/70"
+                    }`}
+                  />
+                  {s.kind === "video" && <span className="sr-only">(video)</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
   );
 }

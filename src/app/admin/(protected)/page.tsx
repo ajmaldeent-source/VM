@@ -9,7 +9,7 @@ import { allowlists, can } from "@/lib/roles";
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-const publicPages = ["/", "/about", "/services", "/insights", "/contact"];
+const publicPages = ["/", "/about", "/services", "/products", "/insights", "/contact"];
 
 type Props = { searchParams: Promise<{ denied?: string }> };
 
@@ -18,7 +18,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const { denied } = await searchParams;
   const en = getDictionary("en");
   const ar = getDictionary("ar");
-  const pageCount = (publicPages.length + en.services.length) * locales.length;
+  const pageCount = (publicPages.length + en.services.length + en.products.length) * locales.length;
 
   // Only roles allowed to see enquiries get the count (it reveals customer activity).
   let newEnquiries: number | null = null;
@@ -33,6 +33,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const cards = [
     { label: "Public pages", value: pageCount, note: `${locales.length} languages` },
     { label: "Services", value: en.services.length, note: "EN + AR" },
+    { label: "Products", value: en.products.length, note: "EN + AR placeholders" },
     { label: "Insights", value: en.insights.length, note: "EN + AR" },
     { label: "Staff accounts", value: allowlists.admin.length + allowlists.developer.length, note: `${allowlists.admin.length} admin · ${allowlists.developer.length} developer` },
   ];
@@ -75,7 +76,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
         </Link>
       )}
 
-      <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {cards.map((c) => (
           <div key={c.label} className="glass p-6">
             <dt className="text-sm text-slate-500 dark:text-slate-400">{c.label}</dt>

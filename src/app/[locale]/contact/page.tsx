@@ -11,9 +11,13 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   return isLocale(locale) ? { title: getDictionary(locale).nav.contact } : {};
 }
 
-export default async function ContactPage({ params }: LocaleParams) {
+type Props = LocaleParams & { searchParams: Promise<{ product?: string }> };
+
+export default async function ContactPage({ params, searchParams }: Props) {
   const locale = await pageLocale(params);
   const t = getDictionary(locale);
+  const { product: productSlug } = await searchParams;
+  const product = t.products.find((p) => p.slug === productSlug);
   const c = t.ui.contactPage;
   const rows: [string, string, boolean][] = [
     [c.labels.address, t.company.contact.address, false],
@@ -27,7 +31,7 @@ export default async function ContactPage({ params }: LocaleParams) {
       <PageHero eyebrow={c.eyebrow} title={c.title} intro={c.intro} />
       <section className="container-x grid gap-8 pb-24 lg:grid-cols-5">
         <div className="lg:col-span-3">
-          <ContactForm locale={locale} />
+          <ContactForm locale={locale} product={product ? { slug: product.slug, name: product.name } : undefined} />
         </div>
         <div className="space-y-5 lg:col-span-2">
           <LocationMap label={c.mapLabel} caption={c.mapCaption} />

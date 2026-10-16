@@ -13,4 +13,4 @@ export const founded = 1979;
 // until usage rights are confirmed. Not translated: these are brand names.
 export const clients = ["KOC", "KNPC", "Client 03", "Client 04", "Client 05", "Client 06", "Client 07", "Client 08"];
 
-export type { Dictionary, Insight, Service, ServiceIcon } from "./types";
+export type { Dictionary, Insight, Product, ProductCategory, Service, ServiceIcon } from "./types";
